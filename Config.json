@@ -1,0 +1,16 @@
+﻿[
+    {
+        "Name": "FirstVM",
+        "RAM": "1",
+        "CPU": "2",
+        "Start": "no"
+
+
+    },
+    {
+        "Name": "SecondVM",
+        "RAM": "1",
+        "CPU": "1",
+        "Start": "no"
+    }
+]
