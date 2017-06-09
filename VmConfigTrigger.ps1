@@ -146,7 +146,7 @@ do{
     #region: Clean Log Files an start new log number
     Get-ChildItem $PSScriptRoot | Where-Object {$_.Name -match "Output-\d{8}\-\d{6}.txt"} | sort CreationTime -desc | select -Skip 10 | Remove-Item -Force
     Get-ChildItem $PSScriptRoot | Where-Object {$_.Name -match "Error-\d{8}\-\d{6}.txt"} | sort CreationTime -desc | select -Skip 10 | Remove-Item -Force
-    Write-Log -Message "vmConfigTrigger log Number $date) starts"
+    Write-Log -Message "vmConfigTrigger log Number $date starts"
     #endregion
 
     #region: Start vCenter Connection
