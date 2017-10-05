@@ -155,10 +155,10 @@ do{
     #endregion
 
     #region: Start vCenter Connection
-    Write-Log -Message "Starting to Process vCenter Connection to $VIServer ..."
+    Write-Log -Message "Starting to process vCenter connection to $VIServer ..."
     $OpenConnection = $global:DefaultVIServer | Where-Object { $_.Name -eq $VIServer }
     if($OpenConnection.IsConnected) {
-        Write-Log -Message "vCenter is Already Connected..."
+        Write-Log -Message "vCenter is already connected..."
         $VIConnection = $OpenConnection
         }
         else {
@@ -172,7 +172,7 @@ do{
         }
 
     if (-not $VIConnection.IsConnected) {
-        Write-Log -Message "vCenter Connection Failed" -Level Error
+        Write-Log -Message "vCenter connection failed" -Level Error
         }
     #endregion
 
@@ -181,13 +181,13 @@ do{
     ##[
     ##    {
     ##        "Name": "test",
-    ##        "RAM": "",
-    ##        "CPU": "+1"
+    ##        "RAM": "2",
+    ##        "CPU": "1"
     ##        "Start": "no"
     ##    },
     ##    {
     ##        "Name": "test2",
-    ##        "RAM": "+1",
+    ##        "RAM": "1",
     ##        "CPU": ""
     ##        "Start": "yes"
     ##    }
@@ -199,65 +199,68 @@ do{
     ## Reads all VM names in the Config and compares them with poweredoff VMs in vCenter Inventory
     ## When VM is identified the given configuration is done
     if ($Configs) {
-        Write-Log -Message "'$($Configs.count)' VMs were found in Config File to Process."
+        Write-Log -Message "'$($Configs.count)' VMs were found in config file to process."
 
         foreach ($Config in $Configs) {
             $VmFilter = @{"Runtime.PowerState" ="poweredOff"; "Name" = $Config.name}
             [Array] $FilteredPoweredOffVms = Get-View -ViewType "VirtualMachine" -Property Name, Runtime, Config -Filter $VmFilter
-            Write-Log -Message "'$($FilteredPoweredOffVms.count)' VMs found with matching Name: '$($Config.name)'"
+            Write-Log -Message "'$($FilteredPoweredOffVms.count)' VMs found with matching name: '$($Config.name)'"
             if ($FilteredPoweredOffVms) {
                 foreach ($FilteredPoweredOffVm in $FilteredPoweredOffVms) {
                     $VmChanged = $false
                     if ($FilteredPoweredOffVm.Name -eq $Config.Name) {
-                        Write-Log -Message "VM '$($FilteredPoweredOffVms.Name)' Unique Identified!"
+                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)' is unique identified!"
 
                         If ($($Config.RAM)) {
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Requested RAM Change: '$($Config.RAM)' GB."
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Actual RAM: '$(($FilteredPoweredOffVm.Config.Hardware.MemoryMB) / 1024)' GB."
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': New RAM: '$($Config.RAM)' GB."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Requested RAM size: '$($Config.RAM)' GB."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Actual RAM size: '$(($FilteredPoweredOffVm.Config.Hardware.MemoryMB) / 1024)' GB."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': New RAM size: '$($Config.RAM)' GB."
                             if ($(($FilteredPoweredOffVm.Config.Hardware.MemoryMB) / 1024) -ne $($Config.RAM)) {
-                                Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM need to be changed."
+                                Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM size needs to be changed."
                                 if ($Test -eq $False) {
                                     $VmSpec = New-Object –Type VMware.Vim.VirtualMAchineConfigSpec –Property @{“MemoryMB” = $([single]($Config.RAM) * 1024)}
                                     $Trash = $FilteredPoweredOffVm.ReconfigVM($VmSpec)
-                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM changed."
+                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM size is changed."
                                     $VmChanged = $true
-                                    Remove-Variable -Name VmSpec, Trash
+                                    Remove-Variable -Name VmSpec
+                                    if ($Trash) {
+                                        Remove-Variable -Name Trash
+                                    }
                                     }
                                     else {
-                                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM NOT changed, Test Mode requested."
+                                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM size is NOT changed, Test Mode requested."
                                         }
 
                                 }
                                 Else {
-                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM already fine."
+                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': RAM size is already fine."
                                     }
                             }
                         If ($($Config.CPU)) {
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Requested CPU Change: '$($Config.CPU)' vCPU."
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Actual vCPUs: '$($FilteredPoweredOffVm.Config.Hardware.NumCpu)'."
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': New vCPUs: '$($Config.CPU)'."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Requested vCPU count: '$($Config.CPU)' vCPUs."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Actual vCPU Count: '$($FilteredPoweredOffVm.Config.Hardware.NumCpu)'."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': New vCPU count: '$($Config.CPU)'."
                             if ($($FilteredPoweredOffVm.Config.Hardware.NumCPU) -ne $($Config.CPU)) {
-                                Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPUs need to be changed."
+                                Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPU count need to be changed."
                                 if ($Test -eq $False) {
                                     $VmSpec = New-Object –Type VMware.Vim.VirtualMAchineConfigSpec –Property @{“NumCPUs” = $Config.CPU}
                                     $Trash = $FilteredPoweredOffVm.ReconfigVM($VmSpec)
-                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPUs changed."
+                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPU count is changed."
                                     $VmChanged = $true
                                     Remove-Variable -Name VmSpec, Trash
                                     }
                                     else {
-                                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPUs NOT changed, Test Mode requested."
+                                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPU count is NOT changed, Test Mode requested."
                                         }
                                 }
                                 Else {
-                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPUs already fine."
+                                    Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPU count is already fine."
                                     }
                             }
                         if ($VmChanged -eq $true) {
-                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Was changed."
+                            Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Config was changed."
                             If ($($Config.Start) -eq "yes") {
-                                Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Needs to powered on."
+                                Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Needs to be powered on."
                                 $Trash = $FilteredPoweredOffVm.PowerOnVM_Task($null)
                                 Remove-Variable -Name Trash
                                 }
@@ -265,13 +268,13 @@ do{
                                     Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Needs NOT to powered on."
                                     }
                                     else {
-                                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Invalid Start configuration."
+                                        Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Invalid VM start configuration."
                                         }
                             }
 
                         }
                         Else {
-                            Write-Log -Message "Name: '$($Config.Name)' Not Unique Identified in VM '$($FilteredPoweredOffVm.Name)'!" -Level Warn
+                            Write-Log -Message "Name: '$($Config.Name)' was not unique identified in VM '$($FilteredPoweredOffVm.Name)'!" -Level Warn
                             }
                     }
                 }
