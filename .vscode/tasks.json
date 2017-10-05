@@ -13,7 +13,7 @@
 
 	// Start PowerShell
     "windows": {
-        "command": "${env.windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe"
+        "command": "C:\\windows\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe"
     },
     "linux": {
         "command": "/usr/bin/powershell"
@@ -40,8 +40,10 @@
             "isTestCommand": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking Pester'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
-                "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
+                "Write-Host 'Invoking Pester';",
+                "Import-Module -Name Pester -Force;",
+                "Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+                "Write-Host 'Completed Test task in task runner.'"
             ],
             "problemMatcher": [
                 {
