@@ -1,6 +1,6 @@
 ﻿[
     {
-        "Name": "FirstVM",
+        "Name": "test",
         "RAM": "1",
         "CPU": "2",
         "Start": "no"
@@ -8,7 +8,7 @@
 
     },
     {
-        "Name": "SecondVM",
+        "Name": "test1",
         "RAM": "1",
         "CPU": "1",
         "Start": "no"
