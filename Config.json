@@ -1,16 +1,16 @@
 ﻿[
     {
         "Name": "test",
-        "RAM": "40960",
+        "RAM": "2",
         "CPU": "2",
         "Start": "no"
 
 
     },
     {
-        "Name": "test1",
+        "Name": "test2",
         "RAM": "1",
-        "CPU": "1",
-        "Start": "no"
+        "CPU": "2",
+        "Start": "yes"
     }
 ]

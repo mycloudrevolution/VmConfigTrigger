@@ -247,7 +247,10 @@ do{
                                     $Trash = $FilteredPoweredOffVm.ReconfigVM($VmSpec)
                                     Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPU count is changed."
                                     $VmChanged = $true
-                                    Remove-Variable -Name VmSpec, Trash
+                                    Remove-Variable -Name VmSpec
+                                    if ($Trash) {
+                                        Remove-Variable -Name Trash
+                                    }
                                     }
                                     else {
                                         Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': vCPU count is NOT changed, Test Mode requested."
@@ -262,7 +265,9 @@ do{
                             If ($($Config.Start) -eq "yes") {
                                 Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Needs to be powered on."
                                 $Trash = $FilteredPoweredOffVm.PowerOnVM_Task($null)
-                                Remove-Variable -Name Trash
+                                if ($Trash) {
+                                    Remove-Variable -Name Trash
+                                }
                                 }
                                 elseIf ($($Config.Start) -eq "no") {
                                     Write-Log -Message "VM '$($FilteredPoweredOffVm.Name)': Needs NOT to powered on."
@@ -296,6 +301,7 @@ do{
     #region: Finalize log number and cleanup
     Write-Log -Message "vmConfigTrigger log Number $date ends"
     Remove-Variable -Name Config, Configs, Date, FilteredPoweredOffVm, FilteredPoweredOffVms, VmChanged, VmFilter, LogPath, ErrorPath, OpenConnection, VIConnection
+    [System.GC]::Collect()
     #endregion
 }
 while ($error.Count -eq 0)
