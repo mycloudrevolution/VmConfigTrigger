@@ -2,15 +2,15 @@
     {
         "Name": "test",
         "RAM": "2",
-        "CPU": "2",
+        "CPU": "1",
         "Start": "no"
 
 
     },
     {
         "Name": "test2",
-        "RAM": "1",
-        "CPU": "2",
+        "RAM": "2",
+        "CPU": "1",
         "Start": "yes"
     }
 ]
